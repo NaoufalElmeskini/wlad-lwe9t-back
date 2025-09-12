@@ -114,3 +114,33 @@ The project should implement:
 - Javadoc for public APIs and complex business logic
 - Clear naming conventions for classes and methods
 - Architecture documentation explaining service interactions
+
+## Commit Message Standards
+
+### Commit Message Format
+Use clear, functional commit messages that focus on business value and architectural decisions:
+
+**Good Examples**:
+- `Add user authentication with JWT security layer`
+- `Implement product catalog with pagination for performance`
+- `Refactor payment service for PCI compliance`
+- `Add inventory management with concurrent access protection`
+
+**Structure**:
+```
+Functional summary: business impact
+
+- Architecture decision: explain why this approach
+- Security consideration: mention security implications
+- Testability: how this improves testing
+- Performance/Scalability: impact on system performance
+```
+
+**Commit Message Rules**:
+1. **Focus on functionality** over implementation details
+2. **Always mention architectural decisions** and their rationale
+3. **Highlight security implications** of changes
+4. **Explain testability improvements** or testing approach
+5. **Avoid generic technical jargon** - focus on business value
+6. **Never mention AI tools or code generation** in commit messages
+7. **Keep first line under 50 characters** for better readability
