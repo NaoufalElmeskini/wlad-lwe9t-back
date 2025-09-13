@@ -21,7 +21,7 @@ class StatusControllerIntegrationTest {
 
     @Test
     void shouldReturnAcceptedStatusWhenCallingStatusEndpoint() {
-        String url = "http://localhost:" + port + "/rest-api/status";
+        String url = "http://localhost:" + port + "/api/status";
         
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         

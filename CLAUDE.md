@@ -4,20 +4,91 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Spring Boot 3.3.5 REST API application (`wladLwe9t`) that demonstrates a microservices architecture pattern. The application fetches product data from an internal repository and enriches it with pricing information from an external price API service.
+This is a Spring Boot 3.3.5 REST API application (`wladLwe9t`) that demonstrates basic web service architecture. Currently a minimal application with a health check endpoint.
 
 ## Architecture
 
-The application follows a simple layered architecture:
+### Hexagonal Architecture (Ports and Adapters)
 
-- **Controllers**: Handle HTTP requests (`ProductController`, `StatusController`)
-- **Services**: Business logic layer (`PriceClient` for external API communication)  
-- **Repositories**: Data access layer (`SimpleProductRepository` with in-memory HashMap storage)
-- **Models**: Domain objects (`Product`, `Price`)
+**MANDATORY**: This application MUST follow **Hexagonal Architecture** principles to ensure clean separation of concerns, testability, and maintainability:
 
-**Key Integration**: The `ProductController` combines data from two sources:
-1. Local product data from `SimpleProductRepository`
-2. External pricing data via `PriceClient` calling `http://price-api:8082/api2`
+#### Core Domain (Business Logic)
+- **Domain Models**: Pure business entities with no framework dependencies
+- **Domain Services**: Business logic and rules
+- **Ports**: Abstract interfaces defining contracts for external interactions
+  - Primary Ports: Interfaces for driving adapters (APIs, controllers)
+  - Secondary Ports: Interfaces for driven adapters (repositories, external services)
+
+#### Primary Adapters (Driving Side - Inbound)
+- **REST Controllers**: HTTP API adapters (e.g., `StatusController`)
+- **Event Listeners**: Message queue or event adapters
+- **CLI Interfaces**: Command-line adapters
+
+#### Secondary Adapters (Driven Side - Outbound)
+- **Repositories**: Data persistence adapters
+- **External Service Clients**: Third-party API adapters
+- **Message Publishers**: Event/message queue adapters
+- **File System**: File I/O adapters
+
+#### Package Structure
+```
+src/main/java/io/lacrobate/wladLwe9t/
+├── domain/           # Core business logic (no dependencies)
+│   ├── model/        # Domain entities
+│   ├── service/      # Domain services
+│   └── port/         # Interfaces (contracts)
+├── infrastructure/   # Secondary adapters
+│   ├── repository/   # Data persistence implementations
+│   ├── client/       # External service clients
+│   └── messaging/    # Message queue implementations
+├── application/      # Primary adapters
+│   ├── rest/         # REST controllers
+│   ├── cli/          # Command-line interfaces
+│   └── config/       # Application configuration
+└── WladLwe9tApplication.java
+```
+
+#### Architecture Benefits
+- **Testability**: Core logic isolated from external dependencies
+- **Flexibility**: Easy to swap implementations (in-memory → database)
+- **Security**: Clear boundaries for essential data validation
+- **Maintainability**: Clear separation of concerns
+- **Business Focus**: Domain logic free from technical concerns
+
+**Current State**: The application provides a basic health check endpoint at `/status` and needs refactoring to follow hexagonal architecture.
+
+## Security Guidelines
+
+### Pragmatic Security Approach
+
+**MANDATORY**: Apply **pragmatic security** focusing on major risks while avoiding unnecessary complexity:
+
+#### Core Security Principles
+- **Simple is Secure**: Favor simple, well-understood solutions over complex ones
+- **Major Risks First**: Focus on high-impact vulnerabilities (injection, authentication, authorization)
+- **Progressive Enhancement**: Start with basic protections, add layers as needed
+- **Fail Secure**: Default to deny access, validate all inputs at entry points
+
+#### Essential Security Controls
+1. **Input Validation**: Validate at controller level (primary adapters)
+   - Use Spring's `@Valid` and Bean Validation annotations
+   - Sanitize user inputs to prevent injection attacks
+
+2. **Authentication & Authorization**:
+   - Implement when handling sensitive data or operations
+   - Use Spring Security for standard patterns
+
+3. **Error Handling**:
+   - Never expose internal system details in error messages
+   - Log security events for monitoring
+
+#### What NOT to Over-Engineer
+- Avoid complex custom security frameworks
+- Don't implement cryptography from scratch
+- Skip security theater (complex patterns with no real benefit)
+- Don't add security layers without clear threat model
+
+**Security Documentation**: Document WHY security decisions were made, not just HOW they work.
 
 ## Development Commands
 
@@ -27,19 +98,11 @@ The application follows a simple layered architecture:
 - Run `src/main/java/io/lacrobate/wladLwe9t/WladLwe9tApplication.java`
 - Application runs on `http://localhost:8080`
 
-**Docker Compose** (recommended for full stack):
-```bash
-docker compose up -d
-```
-- Requires `price-api` service in `../api2/` directory
-- Runs both wladlwe9t-service (port 8080) and price-service (port 8082)
-
-**Manual Docker**:
+**Docker**:
 ```bash
 mvn clean package
 docker build -t wladlwe9t .
-docker network create api-network
-docker run -p 127.0.0.1:8080:8080 --network=api-network --name wladlwe9t wladlwe9t
+docker run -p 127.0.0.1:8080:8080 --name wladlwe9t wladlwe9t
 ```
 
 ### Testing
@@ -55,58 +118,85 @@ mvn clean package
 ## API Endpoints
 
 - `GET /status` - Health check endpoint
-- `GET /product/{id}` - Get product with pricing (requires price-api to be running)
 
-Base URL: `http://localhost:8080/rest-api`
+Base URL: `http://localhost:8080`
 
 ## Dependencies & Technologies
 
 - **Java 21**
 - **Spring Boot 3.3.5** with Spring Web
-- **OpenTelemetry** for distributed tracing
 - **Lombok** for code generation
-- **RestTemplate** for HTTP client communication
-
-## External Dependencies
-
-This service depends on a separate `price-api` service that should be running on port 8082. The `PriceClient` expects the price service to be available at `http://price-api:8082/api2`.
+- **Spring Boot Test** for testing
 
 ## Testing Standards and Best Practices
 
-### Testing Philosophy
-This project should follow comprehensive testing standards with both unit and integration tests:
+### Tests as Specifications Philosophy
 
-**Unit Tests**:
-- Test individual components in isolation
-- Mock external dependencies (services, repositories, clients)
-- Focus on business logic and edge cases
-- Use `@WebMvcTest` for controller unit tests
-- Use `@DataJpaTest` for repository tests (when applicable)
+**MANDATORY**: Tests MUST serve as **living specifications** that document system behavior, business rules, and architectural decisions.
 
-**Integration Tests**:
-- Test complete request/response flows
-- Use `@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)`
-- Test actual HTTP endpoints with `TestRestTemplate`
-- Verify service integration points
-- Example: `StatusControllerIntegrationTest` tests the `/status` endpoint
+#### Test-Driven Development (TDD)
+- **Write tests FIRST** before implementation
+- Tests define **expected behavior** and serve as specifications
+- **Red-Green-Refactor** cycle: failing test → minimal implementation → refactor
+- Domain logic tests should be **independent of frameworks**
 
-### Testing Commands
+#### Test Categories and Specifications
+
+**Domain Tests** (Core Business Logic):
+- Test pure domain entities and business rules
+- No Spring annotations or framework dependencies
+- Focus on business behavior and edge cases
+- Example: `ProductTest` specifies product validation rules
+
+**Unit Tests** (Component Specifications):
+- Test individual components in isolation using mocks
+- Specify component contracts and behavior
+- Use `@WebMvcTest` for controller specifications
+- Use `@DataJpaTest` for repository contract specifications
+- Example: `StatusControllerTest` specifies HTTP contract
+
+**Integration Tests** (System Specifications):
+- Test complete user scenarios and system behavior
+- Use `@SpringBootTest` for full system specifications
+- Test actual HTTP endpoints with real infrastructure
+- Example: `StatusControllerIntegrationTest` specifies system health check
+
+**Contract Tests** (API Specifications):
+- Document and verify API contracts between services
+- Use tools like WireMock for external service contracts
+- Specify input/output formats and error conditions
+
+#### Test Documentation Requirements
+- **Test names** must describe **business scenarios**, not implementation
+  - ✅ `shouldReturnAcceptedStatusWhenSystemIsHealthy()`
+  - ❌ `testStatus()`
+- **Given-When-Then** structure in test methods
+- **Arrange-Act-Assert** pattern for clarity
+- Comments explaining **business context** when complex
+
+#### Testing Commands
 ```bash
-# Run all tests
+# Run all tests (specifications)
 mvn test
 
-# Run specific test class
+# Run specific test specifications
 mvn test -Dtest=StatusControllerIntegrationTest
 
-# Run tests with coverage
+# Run tests with coverage analysis
 mvn test jacoco:report
+
+# Run domain tests only
+mvn test -Dtest="**/*Test.java"
+
+# Run integration specifications only  
+mvn test -Dtest="**/*IntegrationTest.java"
 ```
 
 ### Documentation Standards
 The project should implement:
 
 **API Documentation**:
-- **Swagger/OpenAPI**: Add springdoc-openapi dependency for interactive API docs
+- **Swagger/OpenAPI**: MANDATORY for all REST controllers - document endpoints with business context
 - **README**: Comprehensive setup and usage instructions
 - **Test as Specification**: Tests should serve as living documentation of API behavior
 
@@ -114,6 +204,12 @@ The project should implement:
 - Javadoc for public APIs and complex business logic
 - Clear naming conventions for classes and methods
 - Architecture documentation explaining service interactions
+
+**Architectural Decision Documentation**:
+- **Concepts over Implementation**: Document WHY and WHAT (business purpose) over HOW (technical details)
+- **Major Decisions**: Record significant architectural choices in commit messages and code
+- **Business Context**: Explain business drivers behind technical decisions
+- **Trade-offs**: Document what was considered and why specific approach was chosen
 
 ## Commit Message Standards
 
@@ -142,5 +238,6 @@ Functional summary: business impact
 3. **Highlight security implications** of changes
 4. **Explain testability improvements** or testing approach
 5. **Avoid generic technical jargon** - focus on business value
-6. **Never mention AI tools or code generation** in commit messages
-7. **Keep first line under 50 characters** for better readability
+6. **Never mention AI tools, code generation, Claude, or IA** in commit messages
+7. **Keep first line under 50 characters** for better readability, include emoji
+8. **Add change category (feat, bugfix, refacto...)**, example: 'feat: Adding security management'...  
