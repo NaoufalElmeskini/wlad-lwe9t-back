@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/wladlwe9t
+    username: wladlwe9t_user
+    password: wladlwe9t_password
+  jpa:
+    show-sql: true

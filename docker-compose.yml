@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: wladlwe9t-postgres
+    environment:
+      POSTGRES_DB: wladlwe9t
+      POSTGRES_USER: wladlwe9t_user
+      POSTGRES_PASSWORD: wladlwe9t_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wladlwe9t_user -d wladlwe9t"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - wladlwe9t-network
+
+  app:
+    build: .
+    container_name: wladlwe9t-api
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/status"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+    networks:
+      - wladlwe9t-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  wladlwe9t-network:
+    driver: bridge
