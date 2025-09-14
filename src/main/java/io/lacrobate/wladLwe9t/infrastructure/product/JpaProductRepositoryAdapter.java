@@ -1,9 +1,9 @@
-package io.lacrobate.wladLwe9t.infrastructure.repository;
+package io.lacrobate.wladLwe9t.infrastructure.product;
 
 import io.lacrobate.wladLwe9t.domain.model.Product;
 import io.lacrobate.wladLwe9t.domain.port.ProductRepository;
-import io.lacrobate.wladLwe9t.infrastructure.persistence.entity.ProductEntity;
-import io.lacrobate.wladLwe9t.infrastructure.persistence.repository.JpaProductRepository;
+import io.lacrobate.wladLwe9t.infrastructure.product.entity.ProductEntity;
+import io.lacrobate.wladLwe9t.infrastructure.product.repository.JpaProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
