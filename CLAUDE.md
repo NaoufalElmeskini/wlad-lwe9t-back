@@ -90,6 +90,55 @@ src/main/java/io/lacrobate/wladLwe9t/
 
 **Security Documentation**: Document WHY security decisions were made, not just HOW they work.
 
+#### Integration Testing Security Guidelines
+
+**MANDATORY SECURITY RULES FOR TESTING**:
+
+1. **NEVER hardcode credentials in test code** - Security vulnerability via source control exposure
+2. **Use `@WithMockUser` for authentication testing** - Mock security context without real credentials
+3. **Separate test security configuration** - Create test-specific security configs when needed
+4. **Environment variables ONLY** - If real credentials absolutely required (rare cases)
+5. **Test security behaviors, not actual credentials** - Focus on authorization logic, not credential validation
+
+**Secure Testing Patterns**:
+
+**Unit Tests with MockMvc**:
+```java
+// ✅ SECURE: Mock authentication without credentials
+@Test
+@WithMockUser(username = "testuser", roles = "USER")
+void shouldAccessProtectedEndpoint() { ... }
+```
+
+**Integration Tests with TestRestTemplate**:
+```java
+// ✅ SECURE: Use configured credentials for integration testing
+@Autowired
+private RestTemplateBuilder restTemplateBuilder;
+
+private TestRestTemplate authenticatedRestTemplate() {
+    return new TestRestTemplate(restTemplateBuilder)
+            .withBasicAuth("tintin", "acrobate"); // Test environment credentials only
+}
+
+// ✅ SECURE: Test unauthorized access
+@Test
+void shouldReturnUnauthorizedWhenNoAuthentication() {
+    ResponseEntity<Object> response = restTemplate.getForEntity("/api/endpoint", Object.class);
+    assertEquals(401, response.getStatusCodeValue());
+}
+
+// ❌ INSECURE: Hardcoded production credentials
+restTemplate.withBasicAuth("admin", "prod-password")
+```
+
+**Test Security Architecture**:
+- Unit tests: Use `@WithMockUser` for mocked security context
+- Integration tests: Use test environment credentials in isolated methods
+- Authorization tests verify role-based access control
+- Unauthenticated tests verify proper 401 responses
+- Test credentials separate from production credentials
+
 ## Development Commands
 
 ### Running the Application

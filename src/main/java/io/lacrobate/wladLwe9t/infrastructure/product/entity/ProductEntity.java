@@ -1,4 +1,4 @@
-package io.lacrobate.wladLwe9t.infrastructure.persistence.entity;
+package io.lacrobate.wladLwe9t.infrastructure.product.entity;
 
 import io.lacrobate.wladLwe9t.domain.model.Product;
 import jakarta.persistence.*;

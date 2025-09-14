@@ -1,4 +1,4 @@
-package io.lacrobate.wladLwe9t.application.rest.dto;
+package io.lacrobate.wladLwe9t.application.product.dto;
 
 import io.lacrobate.wladLwe9t.domain.model.Product;
 
