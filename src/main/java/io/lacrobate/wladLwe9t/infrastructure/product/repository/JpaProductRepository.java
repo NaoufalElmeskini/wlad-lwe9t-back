@@ -1,6 +1,6 @@
-package io.lacrobate.wladLwe9t.infrastructure.persistence.repository;
+package io.lacrobate.wladLwe9t.infrastructure.product.repository;
 
-import io.lacrobate.wladLwe9t.infrastructure.persistence.entity.ProductEntity;
+import io.lacrobate.wladLwe9t.infrastructure.product.entity.ProductEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

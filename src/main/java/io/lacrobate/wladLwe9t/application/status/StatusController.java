@@ -1,4 +1,4 @@
-package io.lacrobate.wladLwe9t.status;
+package io.lacrobate.wladLwe9t.application.status;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;

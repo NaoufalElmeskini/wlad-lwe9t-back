@@ -1,7 +1,7 @@
-package io.lacrobate.wladLwe9t.application.rest;
+package io.lacrobate.wladLwe9t.application.product;
 
-import io.lacrobate.wladLwe9t.application.rest.dto.ProductRequest;
-import io.lacrobate.wladLwe9t.application.rest.dto.ProductResponse;
+import io.lacrobate.wladLwe9t.application.product.dto.ProductRequest;
+import io.lacrobate.wladLwe9t.application.product.dto.ProductResponse;
 import io.lacrobate.wladLwe9t.domain.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
