@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wladlwe9t_test
+    username: wladlwe9t_user
+    password: wladlwe9t_password
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+  liquibase:
+    enabled: false
+  sql:
+    init:
+      mode: never

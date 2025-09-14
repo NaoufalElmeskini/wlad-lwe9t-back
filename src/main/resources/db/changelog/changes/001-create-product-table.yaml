@@ -1,0 +1,139 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-product-table
+      author: claude
+      changes:
+        - createTable:
+            tableName: products
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+              - column:
+                  name: price
+                  type: DECIMAL(10,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: category
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: available
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+                  constraints:
+                    nullable: false
+      rollback:
+        - dropTable:
+            tableName: products
+
+  - changeSet:
+      id: 002-insert-initial-products
+      author: claude
+      changes:
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "MacBook Pro M3"
+              - column:
+                  name: description
+                  value: "Laptop professionnel avec processeur Apple M3"
+              - column:
+                  name: price
+                  value: 2499.99
+              - column:
+                  name: category
+                  value: "Informatique"
+              - column:
+                  name: available
+                  valueBoolean: true
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "iPhone 15 Pro"
+              - column:
+                  name: description
+                  value: "Smartphone haut de gamme avec appareil photo professionnel"
+              - column:
+                  name: price
+                  value: 1229.99
+              - column:
+                  name: category
+                  value: "Téléphonie"
+              - column:
+                  name: available
+                  valueBoolean: true
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Sony WH-1000XM5"
+              - column:
+                  name: description
+                  value: "Casque audio sans fil avec réduction de bruit active"
+              - column:
+                  name: price
+                  value: 399.99
+              - column:
+                  name: category
+                  value: "Audio"
+              - column:
+                  name: available
+                  valueBoolean: true
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Dell UltraSharp 4K"
+              - column:
+                  name: description
+                  value: "Écran 27 pouces 4K pour professionnels"
+              - column:
+                  name: price
+                  value: 599.99
+              - column:
+                  name: category
+                  value: "Informatique"
+              - column:
+                  name: available
+                  valueBoolean: true
+        - insert:
+            tableName: products
+            columns:
+              - column:
+                  name: name
+                  value: "Samsung Galaxy Tab S9"
+              - column:
+                  name: description
+                  value: "Tablette Android premium avec S Pen inclus"
+              - column:
+                  name: price
+                  value: 849.99
+              - column:
+                  name: category
+                  value: "Tablette"
+              - column:
+                  name: available
+                  valueBoolean: false
+      rollback:
+        - delete:
+            tableName: products
