@@ -46,6 +46,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/status").permitAll()
+                .requestMatchers("/payments/webhook").permitAll() // Stripe webhooks (verified by signature)
                 .anyRequest().authenticated()
             )
             .httpBasic(httpBasic -> {})

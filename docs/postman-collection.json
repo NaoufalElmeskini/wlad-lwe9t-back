@@ -1,0 +1,170 @@
+{
+  "info": {
+    "name": "Stripe Payment API - wladLwe9t",
+    "description": "Collection Postman/Insomnia pour tester l'API Stripe du backend wladLwe9t",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "tintin",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "acrobate",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Create Payment Intent",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount\": 2500,\n  \"currency\": \"EUR\",\n  \"customerInfo\": {\n    \"email\": \"client@example.com\",\n    \"firstName\": \"Jean\",\n    \"lastName\": \"Dupont\",\n    \"address\": \"123 Rue de Paris\",\n    \"city\": \"Paris\",\n    \"postalCode\": \"75001\",\n    \"phone\": \"+33612345678\"\n  },\n  \"items\": [\n    {\n      \"id\": \"prod_001\",\n      \"name\": \"T-shirt Premium\",\n      \"quantity\": 2,\n      \"price\": 1250\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/payments/create-intent",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "payments", "create-intent"]
+        },
+        "description": "Crée un Payment Intent Stripe avec les informations client et articles.\n\n**Réponse attendue :**\n- clientSecret : pour finaliser le paiement côté frontend\n- paymentIntentId : identifiant du Payment Intent\n- amount : montant en centimes\n- currency : devise (EUR)\n- status : REQUIRES_PAYMENT_METHOD"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Payment Intent",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/payments/:paymentIntentId",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "payments", ":paymentIntentId"],
+          "variable": [
+            {
+              "key": "paymentIntentId",
+              "value": "pi_test_123",
+              "description": "Remplacer par un vrai Payment Intent ID (ex: pi_3ABC123...)"
+            }
+          ]
+        },
+        "description": "Récupère le statut actuel d'un Payment Intent.\n\n**Utilisation :**\n1. Créer d'abord un Payment Intent avec l'endpoint /create-intent\n2. Copier le paymentIntentId de la réponse\n3. Remplacer :paymentIntentId dans l'URL par cette valeur"
+      },
+      "response": []
+    },
+    {
+      "name": "Confirm Payment Intent",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"paymentIntentId\": \"pi_test_123\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/payments/confirm",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "payments", "confirm"]
+        },
+        "description": "Confirme un Payment Intent côté serveur (optionnel).\n\n**Note :** Normalement, la confirmation se fait côté frontend avec Stripe.js.\nCet endpoint est utile pour les paiements serveur-only."
+      },
+      "response": []
+    },
+    {
+      "name": "Webhook Stripe (Test)",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Stripe-Signature",
+            "value": "t=1234567890,v1=fake_signature_for_testing",
+            "type": "text",
+            "description": "En production, signature générée par Stripe"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"evt_test_webhook_123\",\n  \"type\": \"payment_intent.succeeded\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"pi_test_123\",\n      \"amount\": 2500,\n      \"status\": \"succeeded\"\n    }\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/payments/webhook",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "payments", "webhook"]
+        },
+        "description": "Endpoint webhook Stripe (sans authentification).\n\n**IMPORTANT :** Ce endpoint est protégé par vérification de signature Stripe.\nPour tester localement avec de vrais webhooks :\n\n```bash\nstripe listen --forward-to localhost:8080/api/payments/webhook\n```\n\nOu utiliser le Stripe CLI pour simuler un événement :\n\n```bash\nstripe trigger payment_intent.succeeded\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Health Check (Status)",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/status",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "status"]
+        },
+        "description": "Vérifie que l'API est accessible (endpoint public sans auth)."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "tintin",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "acrobate",
+      "type": "string"
+    }
+  ]
+}

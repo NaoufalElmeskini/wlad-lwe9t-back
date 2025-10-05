@@ -26,3 +26,8 @@ security:
   user:
     name: tintin
     password: $2a$10$as6Pj2OayrIP/4x0ZrQlM.befOcqpZ9KtF73YTN3IYcGQ8rNsgYUS
+
+stripe:
+  api:
+    secret-key: ${STRIPE_SECRET_KEY:sk_test_your_key_here}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:whsec_your_webhook_secret_here}
